@@ -87,30 +87,33 @@ const mainController = {
   },
   deleteBook: async (req, res) => {
     // Implement delete book
+    // npm install method - override
     const id = req.params.id
-    console.log(id)
+    // console.log(id)
     try {
       const borrar = await db.Book.destroy(
         {
           where: { id }, force: true
         }
       )
-      // .then(() => {
-      //   res.redirect("home")
-      // })
-      // const books = await db.Book.findAll()
-      // console.log(id)
-      // this.deleteBook(req, res)
-      // db.Book.borrar({
-      //   where: {
-      //     id: req.params.id
-      //   }
-      // })
-      // res.render('home', { books });
+      res.redirect('/')
     } catch (error) {
 
       console.log(error)
     }
+    // .then(() => {
+    //   res.redirect("home")
+    // })
+    // const books = await db.Book.findAll()
+    // console.log(id)
+    // this.deleteBook(req, res)
+    // db.Book.borrar({
+    //   where: {
+    //     id: req.params.id
+    //   }
+    // })
+    // res.render('home', { books });
+
     // delete: (req, res) => {
     //   db.user.destroy({
     //     where: {
@@ -177,32 +180,30 @@ const mainController = {
       })
       .catch((error) => console.log(error));
   },
-  login: async (req, res) => {
+  login: (req, res) => {
     // Implement login process
-    const email = req.body.id
-    const contrasena = req.body.password
-    try {
-      db.User.name
-      db.User.email
-
-      // if (req.cookies.idToken) {
-      //   await db.User.destroy({
-      //     where: { token: req.cookies.idToken },
-      //     force: true,
-      //   });
-      // }
-      // // Destruimos la sesión
-      // req.login.destroy();
-
-      // // Destruimos la cookie de recordar
-      // res.clearCookie("idToken");
-      // // res.render('home');
-    } catch (error) {
-      console.log(error)
+    res.render('login')
 
 
-    }
 
+
+
+
+    // db.User.name
+    // db.User.email
+
+    // if (req.cookies.idToken) {
+    //   await db.User.destroy({
+    //     where: { token: req.cookies.idToken },
+    //     force: true,
+    //   });
+    // }
+    // // Destruimos la sesión
+    // req.login.destroy();
+
+    // // Destruimos la cookie de recordar
+    // res.clearCookie("idToken");
+    // // res.render('home');
 
 
     // res.render('login');
