@@ -6,10 +6,16 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+// method - override para procesamiento de put y delete //
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
 app.set('view engine', 'ejs');
 app.set('views', 'src/views');
 
 app.use('/', mainRouter);
+
+
 
 app.listen(3000, () => {
   console.log('listening in http://localhost:3000');
