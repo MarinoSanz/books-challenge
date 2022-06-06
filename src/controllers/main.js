@@ -23,7 +23,7 @@ const mainController = {
     res.render('search');
   },
   deleteBook: (req, res) => {
-    // Implement delete book
+    // Implement delete book libro
     res.render('home');
   },
   authors: (req, res) => {
