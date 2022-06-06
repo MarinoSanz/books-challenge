@@ -1,30 +1,130 @@
 const bcryptjs = require('bcryptjs');
+const { render } = require('express/lib/response');
 const db = require('../database/models');
 
 const mainController = {
-  home: (req, res) => {
-    db.Book.findAll({
-      include: [{ association: 'authors' }]
-    })
-      .then((books) => {
-        res.render('home', { books });
+  home: async (req, res) => {
+    // db.Book.findAll({
+    //   include: [{ association: 'authors' }]
+    // })
+    //   .then((books) => {
+    //     res.render('home', { books });
+    //   })
+    //   .catch((error) => console.log(error));
+    try {
+      const books = await db.Book.findAll({
+        include: 'authors'
       })
-      .catch((error) => console.log(error));
+      res.render('home', { books });
+      // console.log(books)
+    } catch (error) {
+      console.log(error)
+    }
   },
-  bookDetail: (req, res) => {
+  bookDetail: async (req, res) => {
+    // Implement look for details in the database
+    //desclaro una const book: se guarda la eticion de base de datos
+    //usamos el metodo Primarykey para buscar en la (db) datavalius y si la encuentra la muestra
 
-    res.render('bookDetail');
+    const id = req.params.id
+    try {
+      const book = await db.Book.findOne({
+        where: { id },
+        include: 'authors'
+      })
+      // const autor = await db.BooksAuthors.findOne({
+      // where: { BookId: id }
+      // })
+      // console.log(db)
+      //throw new Error ('no se encontro el libro')
+      // db.Book.findByPk(req.params.id)
+      // .the(datos => {
+      //   // res.json(datos)
+      //   res.render('bookDetail');
+      // })
+      res.render('bookDetail', { book: book.dataValues });
+    } catch (error) {
+      console.log(error)
+    }
+    // res.render('bookDetail');
   },
   bookSearch: (req, res) => {
     res.render('search', { books: [] });
   },
-  bookSearchResult: (req, res) => {
+  bookSearchResult: async (req, res) => {
     // Implement search by title
+    const title = req.body.title.toLowerCase()
+    // console.log(req.body.title)
+    try {
+      // se trae tods los libros
+      const libros = await db.Book.findAll();
+      // creamos una const y filtrar y comparar los textos de front y lo incluimos y filtaramos y devolvimos
+      const books = libros.filter(libro => libro.dataValues.title.toLowerCase().includes(title))
+      console.log(res)
+      res.render('search', { books });
+    } catch (error) {
+      console.log(error)
+    }
+    // console.log(req.body.title)
+    // db.book.findAll(req.params.id)
+    // .then(datos => {
+    //   res.render('search', {data:datos})  
+
+    //   for (let i = 0; i < datos.length; i++) {
+    //     const element = datos[i].title;
+    //     return element
+    //   }
+    //   res.render('search', {data:element})
+
+    //   if(titel == element) {
+    //     res.render('search', {data:element})
+
+    //   }else{
+    //     res.send('Libro no encontrado')
+    //   }
+    // }) 
     res.render('search');
   },
-  deleteBook: (req, res) => {
-    // Implement delete book libro
-    res.render('home');
+  deleteBook: async (req, res) => {
+    // Implement delete book
+    const id = req.params.id
+    console.log(id)
+    try {
+      const borrar = await db.Book.destroy(
+        {
+          where: { id }, force: true
+        }
+      )
+      // .then(() => {
+      //   res.redirect("home")
+      // })
+      // const books = await db.Book.findAll()
+      // console.log(id)
+      // this.deleteBook(req, res)
+      // db.Book.borrar({
+      //   where: {
+      //     id: req.params.id
+      //   }
+      // })
+      // res.render('home', { books });
+    } catch (error) {
+
+      console.log(error)
+    }
+    // delete: (req, res) => {
+    //   db.user.destroy({
+    //     where: {
+    //       id: req.params.id
+    //     }
+    //   })
+    //     .then(() => {
+    //       res.redirect("/home")
+    //     })
+    //     .catch((error) => {
+    //       console.log(error)
+    //     })
+    // }
+
   },
   authors: (req, res) => {
     db.Author.findAll()
@@ -33,9 +133,33 @@ const mainController = {
       })
       .catch((error) => console.log(error));
   },
-  authorBooks: (req, res) => {
+  authorBooks: async (req, res) => {
     // Implement books by author
-    res.render('authorBooks');
+    const id = req.params.id
+    try {
+      const books = await db.Author.findOne({
+        where: {
+          id: id
+        },
+        include: 'books'
+      })
+      // console.log(books.dataValues.books)
+      res.render('authorBooks', { books: books.dataValues.books });
+    } catch (error) {
+      console.log(error)
+    }
+    // res.render('authorBooks', { autor: autor });
+    // const id = db.Author.findByPk(id)
+    // .then()
+    // console.log(id)
+    // res.render('authorBooks');
+    // db.Book.findByPk(req.params.id)
+    //   .then(datos => {
+
+    //     res.render('authorBooks', { data: datos });
+
+    //     console.log(datos)
+    //   })
   },
   register: (req, res) => {
     res.render('register');
@@ -53,22 +177,111 @@ const mainController = {
       })
       .catch((error) => console.log(error));
   },
-  login: (req, res) => {
+  login: async (req, res) => {
     // Implement login process
-    res.render('login');
+    const email = req.body.id
+    const contrasena = req.body.password
+    try {
+      db.User.name
+      db.User.email
+
+      // if (req.cookies.idToken) {
+      //   await db.User.destroy({
+      //     where: { token: req.cookies.idToken },
+      //     force: true,
+      //   });
+      // }
+      // // Destruimos la sesión
+      // req.login.destroy();
+
+      // // Destruimos la cookie de recordar
+      // res.clearCookie("idToken");
+      // // res.render('home');
+    } catch (error) {
+      console.log(error)
+
+
+    }
+
+
+
+    // res.render('login');
   },
-  processLogin: (req, res) => {
+  processLogin: async (req, res) => {
     // Implement login process
-    res.render('home');
+    //Extarigo el email y password que se entrudujo en tu vista body!
+    const email = req.body.email;
+    const password = req.body.password;
+    //consulta nuestra base de datos si existe el email
+    //Try cathc para manejar codigo asincrono
+    // console.log(email)
+    // console.log(password)
+    try {
+      // email = marinoosanz@gmail.com
+      const usuario = await db.user.findOne({ where: { email: email } })
+      // verifica si ese email existe
+      if (!usuario) {
+        res.render('login', {
+          error: 'No hay un usuario con ese email',
+          usuario: null,
+        });
+      }
+      // verificar si la contraseña es valida
+      bcryptjs.compare(password, usuario.dataValues.Pass, function (error, ok) {
+        if (error) {
+          res.render('login', {
+            error: 'La contraseña es incorrecta',
+            usuario: null,
+          });
+        }
+        if (ok) {
+          res.render('home')
+        }
+      });
+
+      // let admin = await db.User.findByPk(req.params.id);
+      // await db.User.update(
+      //   {
+      //     categoryId:
+      //       if (id === 1) {
+      //         userEdit.Id = 2,
+      //         userEdit.Id = 1,
+      //   },
+      //   {
+      //     where: { id: req.params.id },
+      //   }
+      // );
+
+    } catch (error) {
+      console.log(error);
+    }
+    // res.render('home');
   },
-  edit: (req, res) => {
+  edit: async (req, res) => {
     // Implement edit book
-    res.render('editBook', { id: req.params.id })
+    const id = req.params.id
+    try {
+      const book = await db.Book.findByPk(id)
+      res.render('editBook', { id, book: book.dataValues })
+    } catch (error) {
+      console.log(error)
+    }
+
   },
-  processEdit: (req, res) => {
+  processEdit: async (req, res) => {
     // Implement edit book
-    res.render('home');
+    const id = req.params.id
+    try {
+      const book = await db.Book.findByPk(id)
+      const resultado = await book.update(req.body)
+      // console.log(resultado)
+      res.render('bookDetail', { book: resultado.dataValues });
+    } catch (error) {
+      console.log(error)
+    }
+
   }
+
 };
 
 module.exports = mainController;
