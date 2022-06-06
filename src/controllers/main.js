@@ -12,7 +12,7 @@ const mainController = {
       .catch((error) => console.log(error));
   },
   bookDetail: (req, res) => {
-    // Implement look for details in the database
+
     res.render('bookDetail');
   },
   bookSearch: (req, res) => {
@@ -63,7 +63,7 @@ const mainController = {
   },
   edit: (req, res) => {
     // Implement edit book
-    res.render('editBook', {id: req.params.id})
+    res.render('editBook', { id: req.params.id })
   },
   processEdit: (req, res) => {
     // Implement edit book
