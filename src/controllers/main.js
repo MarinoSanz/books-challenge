@@ -1,4 +1,5 @@
 const bcryptjs = require('bcryptjs');
+const res = require('express/lib/response');
 const { render } = require('express/lib/response');
 const db = require('../database/models');
 
@@ -192,60 +193,90 @@ const mainController = {
 
 
 
-    // db.User.name
-    // db.User.email
-
-    // if (req.cookies.idToken) {
-    //   await db.User.destroy({
-    //     where: { token: req.cookies.idToken },
-    //     force: true,
-    //   });
-    // }
-    // // Destruimos la sesión
-    // req.login.destroy();
-
-    // // Destruimos la cookie de recordar
-    // res.clearCookie("idToken");
-    // // res.render('home');
 
 
-    // res.render('login');
   },
+  logout: (req, res) => {
+
+    // Destruimos la sesión
+    req.session.destroy();
+
+    // Destruimos la cookie de recordar
+    res.clearCookie("user");
+
+    // Redirigimos a la home
+    res.redirect("/");
+  },
+
+
+
+
+
   processLogin: async (req, res) => {
     // Implement login process
+    // const userToLogin = User.findByField("email", req.body.email)
+    // if (userToLogin) {
+    //   let password = bcryptjs.compareSync(req.body.password, userToLogin.password);
+    //   if (password) {
+    //     delete userToLogin.password
+    //     req.session.userLogged = userToLogin;
+    //     return res.send("inicio de session")
+    //   }
+    // }
+    // return res.render("usuario loguiado")
+
+
+
     //Extarigo el email y password que se entrudujo en tu vista body!
     const email = req.body.email;
     const password = req.body.password;
     //consulta nuestra base de datos si existe el email
-    //Try cathc para manejar codigo asincrono
-    // console.log(email)
-    // console.log(password)
+
     try {
       // email = marinoosanz@gmail.com
       const usuario = await db.User.findOne({ where: { email: email } })
-      console.log(usuario)
+      // console.log(usuario)
       // verifica si ese email existe
-      if (!usuario) {
-        res.render('login', {
-          error: 'No hay un usuario con ese email',
+      if (usuario) {
+        if (bcryptjs.compareSync(password, usuario.Pass)) {
+          delete usuario.dataValues.password;
+          req.session.user = usuario;
+          res.cookie(
+            "user", usuario, { maxAge: 1000 * 60 * 60 * 24 * 90 }
+          )
+          return res.redirect('/');
+        } else {
 
-        });
-      }
-      // verificar si la contraseña es valida
-      bcryptjs.compare(password, usuario.dataValues.Pass, async (error, resultado) => {
-        if (!resultado) {
           res.render('login', {
             error: 'La contraseña es incorrecta',
-
           });
         }
-        if (resultado) {
-          const books = await db.Book.findAll({
-            include: 'authors'
-          })
-          res.render('home', { books });
-        }
-      });
+
+      } else {
+        res.render('login', {
+          error: 'No hay un usuario con ese email'
+        })
+      }
+      // verificar si la contraseña es valida
+      // bcryptjs.compare(password, usuario.dataValues.Pass, async (error, resultado) => {
+      //   if (!resultado) {
+      //     res.render('login', {
+      //       error: 'La contraseña es incorrecta',
+
+      //     });
+      //   }
+      //   if (resultado) {
+      //     const books = await db.Book.findAll({
+      //       include: 'authors'
+      //     })
+      //     res.render('home', { books });
+      //   }
+      // });
+
+      // res.render('login', {
+      //   error: 'No hay un usuario con ese email',
+
+      // });
 
       // let admin = await db.User.findByPk(req.params.id);
       // await db.User.update(
@@ -265,6 +296,7 @@ const mainController = {
     }
     // res.render('home');
   },
+
   edit: async (req, res) => {
     // Implement edit book
     // trae el libro
