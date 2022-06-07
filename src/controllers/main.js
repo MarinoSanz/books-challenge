@@ -53,6 +53,7 @@ const mainController = {
   },
   bookSearchResult: async (req, res) => {
     // Implement search by title
+    // llega el titulo del front
     const title = req.body.title.toLowerCase()
     // console.log(req.body.title)
     try {
@@ -88,6 +89,7 @@ const mainController = {
   deleteBook: async (req, res) => {
     // Implement delete book
     // npm install method - override
+
     const id = req.params.id
     // console.log(id)
     try {
@@ -138,6 +140,7 @@ const mainController = {
   },
   authorBooks: async (req, res) => {
     // Implement books by author
+    // buscado el authors por id
     const id = req.params.id
     try {
       const books = await db.Author.findOne({
@@ -182,7 +185,7 @@ const mainController = {
   },
   login: (req, res) => {
     // Implement login process
-    res.render('login')
+    res.render('login', { error: '' })
 
 
 
@@ -219,24 +222,28 @@ const mainController = {
     // console.log(password)
     try {
       // email = marinoosanz@gmail.com
-      const usuario = await db.user.findOne({ where: { email: email } })
+      const usuario = await db.User.findOne({ where: { email: email } })
+      console.log(usuario)
       // verifica si ese email existe
       if (!usuario) {
         res.render('login', {
           error: 'No hay un usuario con ese email',
-          usuario: null,
+
         });
       }
       // verificar si la contraseña es valida
-      bcryptjs.compare(password, usuario.dataValues.Pass, function (error, ok) {
-        if (error) {
+      bcryptjs.compare(password, usuario.dataValues.Pass, async (error, resultado) => {
+        if (!resultado) {
           res.render('login', {
             error: 'La contraseña es incorrecta',
-            usuario: null,
+
           });
         }
-        if (ok) {
-          res.render('home')
+        if (resultado) {
+          const books = await db.Book.findAll({
+            include: 'authors'
+          })
+          res.render('home', { books });
         }
       });
 
@@ -275,8 +282,14 @@ const mainController = {
     try {
       const book = await db.Book.findByPk(id)
       const resultado = await book.update(req.body)
+      const books = await db.Book.findOne({
+        where: {
+          id: id
+        },
+        include: 'authors'
+      })
       // console.log(resultado)
-      res.render('bookDetail', { book: resultado.dataValues });
+      res.render('bookDetail', { book: books.dataValues });
     } catch (error) {
       console.log(error)
     }

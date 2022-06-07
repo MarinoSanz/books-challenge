@@ -1,6 +1,7 @@
 module.exports = (sequelize, dataTypes) => {
   let alias = 'Book';
   let cols = {
+    // columnas
     id: {
       type: dataTypes.INTEGER,
       primaryKey: true,
@@ -19,6 +20,7 @@ module.exports = (sequelize, dataTypes) => {
     }
   };
   let config = {
+    // nombre de la tabla
     tableName: 'books',
     timestamps: false
   };
