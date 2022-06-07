@@ -267,6 +267,7 @@ const mainController = {
   },
   edit: async (req, res) => {
     // Implement edit book
+    // trae el libro
     const id = req.params.id
     try {
       const book = await db.Book.findByPk(id)
@@ -278,10 +279,15 @@ const mainController = {
   },
   processEdit: async (req, res) => {
     // Implement edit book
+    // capturamos id 
     const id = req.params.id
     try {
-      const book = await db.Book.findByPk(id)
-      const resultado = await book.update(req.body)
+      // buscamos
+      // const book = await db.Book.findByPk(id)
+      // actualiza
+      // const resultado = await book.update(req.body)
+      await db.Book.update(req.body, { where: { id: id } })
+
       const books = await db.Book.findOne({
         where: {
           id: id
